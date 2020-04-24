@@ -31,19 +31,45 @@
     Vue.component('hijo',{
       template:`
       <div>
-        <button @click="$store.commit('aumentar')">+</button>
-        <h4>{{$store.state.numero}}</h4>
+        <button @click="aumentar">+</button>
+        <button @click="disminuir">-</button>
+        <button @click="obtenerCursos">Obtener Cursos</button>
+        <h4>{{ numero}}</h4>
+        <ul v-for="item of cursos">
+          <li> {{item.nombre}}</li>  
+        </ul>
       </div>
-      `
+      `,
+      computed:{
+        ...Vuex.mapState(['numero','cursos'])
+      },
+      methods:{
+        ...Vuex.mapMutations(['aumentar','disminuir']),
+        ...Vuex.mapActions(['obtenerCursos'])
+      }
     });
 
     const store = new Vuex.Store({
       state:{
-        numero:10
+        numero:10,
+        cursos:[]
       },
       mutations:{
         aumentar(state){
-          state.numero ++
+          state.numero ++;
+        },
+        disminuir(state){
+          state.numero --;
+        },
+        llenarCursos(state, cursosAccion){
+          state.cursos = cursosAccion
+        }
+      },
+      actions:{
+        obtenerCursos: async function({commit}){
+          const data= await fetch('cursos.json');
+          const cursos = await data.json();
+          commit('llenarCursos',cursos);
         }
       }
     });
